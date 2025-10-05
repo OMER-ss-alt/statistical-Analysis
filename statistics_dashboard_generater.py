@@ -47,13 +47,6 @@ st.markdown("""
         border-left: 4px solid #667eea;
         margin: 0.5rem;
     }
-    .success-box {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        border-radius: 5px;
-        padding: 1rem;
-        color: #155724;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -91,7 +84,6 @@ with st.sidebar:
         if uploaded_file:
             try:
                 df = pd.read_csv(uploaded_file)
-                # Ensure proper data types
                 df = df.convert_dtypes()
                 st.success(f"✅ Dataset loaded: {len(df)} rows × {len(df.columns)} columns")
             except Exception as e:
@@ -100,14 +92,13 @@ with st.sidebar:
     elif input_method == "Enter Manually":
         st.markdown("### ✍️ Manual Data Entry")
         
-        # Default sample data for manual entry
         default_data = {
-            "Department": ["Sales", "Marketing", "IT", "Finance", "HR", "Operations"],
-            "Region": ["North", "South", "East", "West", "North", "South"],
-            "Revenue": [150000, 89000, 210000, 120000, 75000, 180000],
-            "Employees": [45, 22, 18, 32, 15, 25],
-            "Satisfaction": [4.2, 4.7, 4.9, 4.1, 4.8, 4.5],
-            "Growth_Rate": [12.5, 8.3, 25.1, 9.8, 6.2, 18.7]
+            "Department": ["Sales", "Marketing", "IT", "Finance", "HR"],
+            "Region": ["North", "South", "East", "West", "North"],
+            "Revenue": [150000, 89000, 210000, 120000, 75000],
+            "Employees": [45, 22, 18, 32, 15],
+            "Satisfaction": [4.2, 4.7, 4.9, 4.1, 4.8],
+            "Growth_Rate": [12.5, 8.3, 25.1, 9.8, 6.2]
         }
         
         df = st.data_editor(
@@ -129,29 +120,28 @@ with st.sidebar:
         
         if dataset_choice == "Sales Performance":
             df = pd.DataFrame({
-                'Date': pd.date_range('2024-01-01', periods=50, freq='D'),
-                'Product': np.random.choice(['iPhone', 'MacBook', 'iPad', 'Watch'], 50),
-                'Region': np.random.choice(['North', 'South', 'East', 'West'], 50),
-                'Sales_Units': np.random.poisson(100, 50),
-                'Revenue': np.random.normal(50000, 15000, 50),
-                'Customer_Rating': np.random.uniform(3.5, 5.0, 50)
+                'Product': ['iPhone', 'MacBook', 'iPad', 'Watch', 'AirPods'],
+                'Category': ['Electronics', 'Electronics', 'Electronics', 'Electronics', 'Electronics'],
+                'Region': ['North', 'South', 'East', 'West', 'North'],
+                'Sales_Units': [100, 40, 150, 80, 200],
+                'Revenue': [50000, 80000, 30000, 20000, 15000],
+                'Customer_Rating': [4.5, 4.7, 4.3, 4.6, 4.8]
             })
         elif dataset_choice == "Customer Analytics":
             df = pd.DataFrame({
-                'Customer_ID': range(1, 101),
-                'Age_Group': np.random.choice(['18-25', '26-35', '36-45', '46-55', '55+'], 100),
-                'Annual_Income': np.random.normal(75000, 25000, 100),
-                'Spending_Score': np.random.randint(1, 100, 100),
-                'Loyalty_Years': np.random.exponential(3, 100)
+                'Customer_ID': range(1, 51),
+                'Age_Group': np.random.choice(['18-25', '26-35', '36-45', '46-55'], 50),
+                'Annual_Income': np.random.normal(75000, 25000, 50),
+                'Spending_Score': np.random.randint(1, 100, 50),
+                'Loyalty_Years': np.random.exponential(3, 50)
             })
         elif dataset_choice == "Financial Metrics":
             df = pd.DataFrame({
-                'Company': ['Tech Corp', 'Finance Ltd', 'Retail Inc', 'Manufacturing Co', 'Service LLC'],
-                'Revenue_Millions': [150, 89, 210, 120, 75],
-                'Profit_Margin': [0.25, 0.18, 0.32, 0.15, 0.22],
-                'Employee_Count': [450, 220, 180, 320, 150],
-                'Market_Cap': [1500, 890, 2100, 1200, 750],
-                'Growth_Rate': [0.125, 0.083, 0.251, 0.098, 0.062]
+                'Company': ['Tech Corp', 'Finance Ltd', 'Retail Inc', 'Manufacturing Co'],
+                'Revenue_Millions': [150, 89, 210, 120],
+                'Profit_Margin': [0.25, 0.18, 0.32, 0.15],
+                'Employee_Count': [450, 220, 180, 320],
+                'Market_Cap': [1500, 890, 2100, 1200]
             })
         
         if df is not None:
@@ -161,12 +151,9 @@ with st.sidebar:
 # MAIN DASHBOARD
 # =============================================================================
 if df is not None and not df.empty:
-    # Ensure proper data types
     df = df.convert_dtypes()
     
-    # =========================================================================
     # EXECUTIVE METRICS
-    # =========================================================================
     st.markdown("## 📈 Executive Dashboard")
     
     col1, col2, col3, col4 = st.columns(4)
@@ -194,9 +181,7 @@ if df is not None and not df.empty:
         st.metric("Missing Values", missing_vals)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # =========================================================================
     # MAIN ANALYSIS TABS
-    # =========================================================================
     st.markdown("---")
     
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
@@ -209,7 +194,6 @@ if df is not None and not df.empty:
         "📤 Export"
     ])
     
-    # Get column types
     numeric_cols = df.select_dtypes(include='number').columns.tolist()
     categorical_cols = df.select_dtypes(include=['object', 'string']).columns.tolist()
     
@@ -226,7 +210,6 @@ if df is not None and not df.empty:
             st.markdown("#### Data Structure")
             st.json({
                 "Shape": f"{df.shape[0]} rows × {df.shape[1]} columns",
-                "Memory Usage": f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB",
                 "Column Types": df.dtypes.astype(str).to_dict(),
                 "Missing Values": int(df.isnull().sum().sum())
             })
@@ -237,15 +220,14 @@ if df is not None and not df.empty:
         if numeric_cols:
             st.markdown("#### Numerical Summary")
             desc_stats = df[numeric_cols].describe()
-            st.dataframe(desc_stats.style.format("{:.2f}").background_gradient(), 
-                        use_container_width=True)
+            st.dataframe(desc_stats.style.format("{:.2f}"), use_container_width=True)
         
         if categorical_cols:
             st.markdown("#### Categorical Summary")
-            for col in categorical_cols:
+            for col in categorical_cols[:3]:  # Show first 3 to avoid overflow
                 value_counts = df[col].value_counts()
                 st.write(f"**{col}:** {len(value_counts)} unique values")
-                st.dataframe(value_counts.head(10), use_container_width=True)
+                st.dataframe(value_counts.head(), use_container_width=True)
     
     with tab3:
         st.subheader("📈 Data Visualization")
@@ -257,27 +239,14 @@ if df is not None and not df.empty:
         )
         
         if viz_type == "Bar Chart" and categorical_cols:
-            col1, col2 = st.columns(2)
-            with col1:
-                bar_col = st.selectbox("Select categorical column", categorical_cols, key="bar_col")
-            with col2:
-                if numeric_cols:
-                    value_col = st.selectbox("Aggregate by", ["Count"] + numeric_cols, key="value_col")
-                else:
-                    value_col = "Count"
-            
-            if value_col == "Count":
-                chart_data = df[bar_col].value_counts()
-                ylabel = "Count"
-            else:
-                chart_data = df.groupby(bar_col)[value_col].mean()
-                ylabel = f"Average {value_col}"
+            bar_col = st.selectbox("Select categorical column", categorical_cols, key="bar_col")
+            chart_data = df[bar_col].value_counts()
             
             fig, ax = plt.subplots(figsize=(10, 6))
             ax.bar(chart_data.index, chart_data.values, color='skyblue', edgecolor='black')
-            ax.set_title(f"{ylabel} by {bar_col}")
+            ax.set_title(f"Frequency of {bar_col}")
             ax.set_xlabel(bar_col)
-            ax.set_ylabel(ylabel)
+            ax.set_ylabel("Count")
             plt.xticks(rotation=45)
             st.pyplot(fig)
             
@@ -333,36 +302,27 @@ if df is not None and not df.empty:
             col1, col2 = st.columns(2)
             
             with col1:
-                # Histogram with KDE
+                # Histogram
                 fig, ax = plt.subplots(figsize=(10, 6))
                 data = df[dist_col].dropna()
-                ax.hist(data, bins=15, density=True, alpha=0.7, color='lightblue', label='Histogram')
-                
-                # Add KDE
-                from scipy.stats import gaussian_kde
-                kde = gaussian_kde(data)
-                x_range = np.linspace(data.min(), data.max(), 100)
-                ax.plot(x_range, kde(x_range), 'r-', label='KDE')
-                
+                ax.hist(data, bins=15, alpha=0.7, color='lightblue', label='Histogram')
                 ax.set_title(f"Distribution of {dist_col}")
                 ax.set_xlabel(dist_col)
                 ax.legend()
                 st.pyplot(fig)
             
             with col2:
-                # QQ Plot
-                fig, ax = plt.subplots(figsize=(10, 6))
-                stats.probplot(data, dist="norm", plot=ax)
-                ax.set_title(f"Q-Q Plot of {dist_col}")
-                st.pyplot(fig)
-            
-            # Normality test
-            if len(data) > 3:
-                shapiro_stat, shapiro_p = stats.shapiro(data)
-                st.write(f"**Normality Test (Shapiro-Wilk):**")
-                st.write(f"- Test Statistic: {shapiro_stat:.4f}")
-                st.write(f"- P-value: {shapiro_p:.4f}")
-                st.write(f"- Interpretation: {'Normal distribution' if shapiro_p > 0.05 else 'Not normal distribution'}")
+                # Basic statistics
+                st.markdown("#### Distribution Statistics")
+                stats_data = {
+                    'Mean': data.mean(),
+                    'Median': data.median(),
+                    'Std Dev': data.std(),
+                    'Skewness': stats.skew(data),
+                    'Kurtosis': stats.kurtosis(data)
+                }
+                for stat, value in stats_data.items():
+                    st.write(f"**{stat}:** {value:.4f}")
     
     with tab5:
         st.subheader("📦 Advanced Statistics")
@@ -375,18 +335,15 @@ if df is not None and not df.empty:
                 advanced_stats.loc[col, 'Mean'] = data.mean()
                 advanced_stats.loc[col, 'Median'] = data.median()
                 advanced_stats.loc[col, 'Std Dev'] = data.std()
-                advanced_stats.loc[col, 'Variance'] = data.var()
                 advanced_stats.loc[col, 'Skewness'] = stats.skew(data)
                 advanced_stats.loc[col, 'Kurtosis'] = stats.kurtosis(data)
-                advanced_stats.loc[col, 'CV (%)'] = (data.std() / data.mean()) * 100
                 
                 # T-test against mean
                 t_stat, p_val = stats.ttest_1samp(data, data.mean())
                 advanced_stats.loc[col, 'T-Statistic'] = t_stat
                 advanced_stats.loc[col, 'P-Value'] = p_val
             
-            st.dataframe(advanced_stats.style.format("{:.4f}").background_gradient(), 
-                        use_container_width=True)
+            st.dataframe(advanced_stats.style.format("{:.4f}"), use_container_width=True)
     
     with tab6:
         st.subheader("🔥 Correlation Analysis")
@@ -399,20 +356,6 @@ if df is not None and not df.empty:
                        square=True, ax=ax, fmt='.2f')
             ax.set_title('Correlation Matrix Heatmap')
             st.pyplot(fig)
-            
-            # Top correlations
-            st.markdown("#### Top Correlations")
-            corr_pairs = corr_matrix.unstack().sort_values(ascending=False)
-            # Remove diagonal and duplicates
-            corr_pairs = corr_pairs[corr_pairs < 0.999]
-            top_corrs = corr_pairs.head(10)
-            
-            top_corr_df = pd.DataFrame({
-                'Variable 1': [pair[0] for pair in top_corrs.index],
-                'Variable 2': [pair[1] for pair in top_corrs.index],
-                'Correlation': top_corrs.values
-            })
-            st.dataframe(top_corr_df, use_container_width=True)
     
     with tab7:
         st.subheader("📤 Export Results")
@@ -421,30 +364,34 @@ if df is not None and not df.empty:
         
         with col1:
             st.markdown("#### Export Data")
-            export_format = st.selectbox("Select format", ["CSV", "Excel"])
             
-            if export_format == "CSV":
-                csv = df.to_csv(index=False)
-                st.download_button(
-                    "📥 Download CSV",
-                    data=csv,
-                    file_name=f"statistical_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                    mime="text/csv",
-                    key="download_csv"
-                )
-            elif export_format == "Excel":
-                output = io.BytesIO()
-                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            # CSV Export (always works)
+            csv = df.to_csv(index=False)
+            st.download_button(
+                "📥 Download CSV",
+                data=csv,
+                file_name=f"statistical_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv",
+                key="download_csv"
+            )
+            
+            # Simple Excel alternative without xlsxwriter
+            try:
+                # Try to create Excel with basic pandas
+                excel_buffer = io.BytesIO()
+                with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
                     df.to_excel(writer, sheet_name='Data', index=False)
                     if numeric_cols:
                         df[numeric_cols].describe().to_excel(writer, sheet_name='Statistics')
                 st.download_button(
                     "📥 Download Excel",
-                    data=output.getvalue(),
+                    data=excel_buffer.getvalue(),
                     file_name=f"statistical_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
                     mime="application/vnd.ms-excel",
                     key="download_excel"
                 )
+            except Exception as e:
+                st.info("📝 Excel export requires additional packages. CSV export is available.")
         
         with col2:
             st.markdown("#### Export Report")
@@ -460,8 +407,10 @@ if df is not None and not df.empty:
 - Categorical Variables: {len(categorical_cols)}
 - Missing Values: {df.isnull().sum().sum()}
 
-## Key Insights
-This report was generated using StatVision Pro - Advanced Statistical Analysis Platform.
+## Dataset Overview
+{df.describe().to_string()}
+
+Generated by StatVision Pro - Advanced Statistical Analysis Platform
                 """
                 st.download_button(
                     "📥 Download Report",
@@ -472,9 +421,7 @@ This report was generated using StatVision Pro - Advanced Statistical Analysis P
                 )
 
 else:
-    # =========================================================================
     # WELCOME SCREEN
-    # =========================================================================
     st.markdown("""
     <div style='text-align: center; padding: 4rem 2rem;'>
         <h1 style='font-size: 3rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
@@ -492,29 +439,21 @@ else:
     with col1:
         st.markdown("""
         ### 🎯 Advanced Features
-        - **Multiple Data Input Methods**: CSV upload, manual entry, sample datasets
-        - **Comprehensive Statistics**: Descriptive stats, advanced metrics, correlation analysis
-        - **Professional Visualizations**: Bar charts, pie charts, histograms, box plots, scatter plots
-        - **Distribution Analysis**: Normality tests, Q-Q plots, KDE
-        - **Export Capabilities**: CSV, Excel, comprehensive reports
+        - **Multiple Data Input Methods**
+        - **Comprehensive Statistics**
+        - **Professional Visualizations**
+        - **Distribution Analysis**
+        - **Export Capabilities**
         """)
     
     with col2:
         st.markdown("""
         ### 📊 Sample Analytics
-        - **Sales Performance**: Revenue tracking and product analytics
-        - **Customer Analytics**: Segmentation and behavior analysis
-        - **Financial Metrics**: Business intelligence and KPI tracking
-        - **Research Data**: Scientific analysis and academic research
+        - **Sales Performance**
+        - **Customer Analytics** 
+        - **Financial Metrics**
+        - **Research Data**
         """)
-    
-    st.markdown("""
-    <div style='text-align: center; margin-top: 3rem;'>
-        <p style='color: #666; font-size: 1.1rem;'>
-            💡 <strong>Get Started:</strong> Choose your data input method from the sidebar
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
 
 # =============================================================================
 # SEO CONTENT FOR GOOGLE
@@ -523,23 +462,15 @@ st.markdown("---")
 st.markdown("""
 ### 🔍 Free Online Statistical Analysis Tool
 
-**StatVision Pro** is a comprehensive web-based statistical analysis platform that provides professional-grade data analysis capabilities for students, researchers, and business professionals.
+**StatVision Pro** - Professional statistical analysis platform for data scientists, researchers, and business analysts.
 
-#### 📊 Key Features:
-- **Data Import**: CSV file upload, manual data entry, sample datasets
-- **Statistical Analysis**: Descriptive statistics, advanced metrics, correlation analysis
-- **Data Visualization**: Professional charts and graphs
-- **Distribution Analysis**: Normality testing, Q-Q plots, KDE
-- **Export Functionality**: Multiple format support
+#### 📊 Features:
+- Data Import & Manual Entry
+- Statistical Analysis & Visualization  
+- Distribution Analysis & Correlation
+- Export Functionality & Reports
 
-#### 🎯 Perfect For:
-- Academic research and thesis writing
-- Business intelligence and data analysis
-- Scientific research and experiments
-- Quality control and process improvement
-- Market research and survey analysis
-
-*100% Free - No Registration Required - Professional Enterprise Platform*
+*100% Free - Professional Enterprise Platform - Google Verified*
 """)
 
 # =============================================================================
@@ -548,8 +479,7 @@ st.markdown("""
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #7f8c8d;'>"
-    "StatVision Pro © 2024 | Enterprise Statistical Analysis Platform | "
-    "Google Verified Analytics Platform"
+    "StatVision Pro © 2024 | Enterprise Statistical Analysis Platform"
     "</div>",
     unsafe_allow_html=True
 )
