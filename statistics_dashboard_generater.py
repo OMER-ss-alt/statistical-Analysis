@@ -5,6 +5,50 @@ import seaborn as sns
 import scipy.stats as stats
 import io
 from sqlalchemy import create_engine
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="Statistical Analysis Dashboard | Free Data Analysis Tool",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# --- GOOGLE SEARCH CONSOLE VERIFICATION ---
+st.markdown("""
+<meta name="google-site-verification" content="tQsz8YFMyt6nnY2BlK_iHjerblTPaPADAo0PZ2OYbTo" />
+""", unsafe_allow_html=True)
+
+# --- Rest of your existing app code continues below ---
+# --- SQL Engine ---
+engine = create_engine('sqlite:///data.db')
+
+# --- Your existing sidebar code ---
+with st.sidebar:
+    st.header("📥 Data Input")
+    input_method = st.radio("Choose input method:", ["Upload CSV", "Enter Manually"])
+    df = None
+
+    if input_method == "Upload CSV":
+        uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+        if uploaded_file:
+            df = pd.read_csv(uploaded_file)
+            df = df.convert_dtypes()
+            df.to_sql('user_data', con=engine, if_exists='replace', index=False)
+            st.success("✅ File uploaded and saved to database.")
+
+    elif input_method == "Enter Manually":
+        sample_data = pd.DataFrame({
+            "Category": ["A", "B", "A", "C"],
+            "Value": [10, 20, 15, 5]
+        })
+        df = st.data_editor(sample_data, num_rows="dynamic", use_container_width=True)
+        if not df.empty:
+            df = df.convert_dtypes()
+            df.to_sql('user_data', con=engine, if_exists='replace', index=False)
+            st.success("✅ Manual data saved to database.")
+
+# --- Continue with the rest of your existing app code ---
+# ... [ALL YOUR EXISTING CODE AFTER THIS]
 
 # --- Setup ---
 st.set_page_config(page_title="Statistical Summary Generator", layout="wide")
@@ -152,4 +196,5 @@ if df is not None and not df.empty:
         else:
             st.warning("⚠️ No numeric columns found.")
 else:
+
     st.info("👆 Upload a CSV or enter data manually to begin.")
